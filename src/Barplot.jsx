@@ -5,20 +5,20 @@ import { flagEmoji, countryRegion } from "./data/students";
 const regions = [...new Set(Object.values(countryRegion))];
 
 const palette = {
-  Americas:      "#5b8db8",
-  Europe:        "#d4943a",
-  Asia:          "#d4572a",
-  "Middle East": "#c4698f",
-  Oceania:       "#5a9e72",
+  Americas:      "#c49a3c",
+  Europe:        "#5b8db8",
+  Asia:          "#4a9e7a",
+  "Middle East": "#a8688a",
+  Oceania:       "#a8688a",
 };
 
 const colorScale = d3.scaleOrdinal()
   .domain(regions)
   .range(regions.map((r) => palette[r] ?? "#999"));
 
-const width = 640;
-const height = 440;
-const margin = { top: 70, right: 30, bottom: 110, left: 65 };
+const width = 500;
+const height = 400;
+const margin = { top: 55, right: 30, bottom: 55, left: 110 };
 const boundsWidth = width - margin.left - margin.right;
 const boundsHeight = height - margin.top - margin.bottom;
 
@@ -42,14 +42,14 @@ export function Barplot({ data, title, subtitle, source }) {
     return avg(b) - avg(a);
   });
 
-  const xScale = d3.scaleBand()
+  const yScale = d3.scaleBand()
     .domain(data.map((d) => d.country))
-    .range([0, boundsWidth])
+    .range([0, boundsHeight])
     .padding(0.2);
 
-  const yScale = d3.scaleLinear()
+  const xScale = d3.scaleLinear()
     .domain([0, d3.max(data, (d) => d.students)])
-    .range([boundsHeight, 0]);
+    .range([0, boundsWidth]);
 
   const isActive = (country) =>
     (!selectedBar || selectedBar === country) &&
@@ -58,10 +58,10 @@ export function Barplot({ data, title, subtitle, source }) {
   const bars = data.map((d, i) => (
     <g key={d.country}>
       <rect
-        x={xScale(d.country)}
-        y={yScale(d.students)}
-        width={xScale.bandwidth()}
-        height={boundsHeight - yScale(d.students)}
+        x={0}
+        y={yScale(d.country)}
+        width={xScale(d.students)}
+        height={yScale.bandwidth()}
         rx={3}
         fill={colorScale(countryRegion[d.country])}
         opacity={isActive(d.country) ? 1 : 0.2}
@@ -75,8 +75,8 @@ export function Barplot({ data, title, subtitle, source }) {
         style={{
           cursor: "pointer",
           transformBox: "fill-box",
-          transformOrigin: "bottom",
-          transform: ready ? "scaleY(1)" : "scaleY(0)",
+          transformOrigin: "left",
+          transform: ready ? "scaleX(1)" : "scaleX(0)",
           transition: `transform 0.6s cubic-bezier(0.4,0,0.2,1) ${i * 0.03}s`,
         }}
         onMouseEnter={(e) => {
@@ -86,9 +86,9 @@ export function Barplot({ data, title, subtitle, source }) {
         onMouseLeave={() => setTooltip(null)}
       />
       <text
-        x={xScale(d.country) + xScale.bandwidth() / 2}
-        y={yScale(d.students) - 4}
-        textAnchor="middle"
+        x={xScale(d.students) + 4}
+        y={yScale(d.country) + yScale.bandwidth() / 2}
+        dy="0.35em"
         fontSize={10}
         fill="#333"
         opacity={isActive(d.country) ? 1 : 0}
@@ -98,31 +98,31 @@ export function Barplot({ data, title, subtitle, source }) {
     </g>
   ));
 
-  const xLabels = xScale.domain().map((country) => (
+  const yLabels = yScale.domain().map((country) => (
     <text
       key={country}
-      x={xScale(country) + xScale.bandwidth() / 2}
-      y={boundsHeight + 15}
+      x={-9}
+      y={yScale(country) + yScale.bandwidth() / 2}
+      dy="0.35em"
       textAnchor="end"
-      transform={`rotate(-45, ${xScale(country) + xScale.bandwidth() / 2}, ${boundsHeight + 15})`}
       fontSize={11}
     >
       {country}
     </text>
   ));
 
-  const yTicks = yScale.ticks(5).map((tick) => (
-    <g key={tick} transform={`translate(0, ${yScale(tick)})`}>
-      <line x1={0} x2={boundsWidth} stroke="#f0f0f0" />
-      <text x={-9} dy="0.32em" textAnchor="end" fontSize={11} fill="#888">
+  const xTicks = xScale.ticks(5).map((tick) => (
+    <g key={tick} transform={`translate(${xScale(tick)}, 0)`}>
+      <line y1={0} y2={boundsHeight} stroke="#f0f0f0" />
+      <text y={boundsHeight + 15} dy="0.72em" textAnchor="middle" fontSize={11} fill="#888">
         {tick}
       </text>
     </g>
   ));
 
   const legendBoxHeight = sortedRegions.length * legendItemHeight + legendPad * 2;
-  const legendX = width - margin.right - legendBoxWidth - 4;
-  const legendY = margin.top + 8;
+  const legendX = margin.left + boundsWidth * 0.7;
+  const legendY = margin.top + boundsHeight * 0.88 - legendBoxHeight;
 
   const legend = (
     <g>
@@ -199,7 +199,7 @@ export function Barplot({ data, title, subtitle, source }) {
       >
         {title && (
           <text
-            x={margin.left} y={20} fontSize={20} fontWeight={700} fill="#111"
+            x={10} y={20} fontSize={20} fontWeight={700} fill="#111"
             style={{ opacity: ready ? 1 : 0, transition: "opacity 0.6s ease" }}
           >
             {title}
@@ -207,19 +207,19 @@ export function Barplot({ data, title, subtitle, source }) {
         )}
         {subtitle && (
           <text
-            x={margin.left} y={36} fontSize={12} fill="#666" fontStyle="italic"
+            x={10} y={36} fontSize={12} fill="#666" fontStyle="italic"
             style={{ opacity: ready ? 1 : 0, transition: "opacity 0.8s ease 0.2s" }}
           >
             {subtitle}
           </text>
         )}
         <g transform={`translate(${margin.left},${margin.top})`}>
-          {yTicks}
+          {xTicks}
+          <line x1={0} x2={0} y1={0} y2={boundsHeight} stroke="#ccc" />
           <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke="#ccc" />
           <text
-            transform="rotate(-90)"
-            x={-boundsHeight / 2}
-            y={-40}
+            x={boundsWidth / 2}
+            y={boundsHeight + 46}
             textAnchor="middle"
             fontSize={12}
             fontStyle="italic"
@@ -227,11 +227,11 @@ export function Barplot({ data, title, subtitle, source }) {
             # of Students
           </text>
           {bars}
-          {xLabels}
+          {yLabels}
         </g>
         {legend}
         {source && (
-          <text x={margin.left} y={height - 8} fontSize={10} fill="#999" fontStyle="italic">
+          <text x={10} y={height - 4} fontSize={10} fill="#999" fontStyle="italic">
             {source}
           </text>
         )}

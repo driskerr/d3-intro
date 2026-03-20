@@ -39,7 +39,7 @@ export const countryRegion = {
   "India": "Asia",
   "Singapore": "Asia",
   "Philippines": "Asia",
-  "Saudi Arabia": "Middle East",
+  "Saudi Arabia": "Asia",
   "Australia": "Oceania",
   "New Zealand": "Oceania",
 };
