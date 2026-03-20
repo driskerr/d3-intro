@@ -7,6 +7,10 @@
   position: relative;
   width: 100%;
   max-width: 640px;
+  background: #fafaf8;
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
 .barplot-svg {
@@ -15,9 +19,9 @@
 
 .barplot-tooltip {
   position: fixed;
-  background: white;
+  background: #fafaf8;
   border-radius: 4px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ccc;
   padding: 6px 10px;
   pointer-events: none;
   font-size: 13px;

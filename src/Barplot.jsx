@@ -79,9 +79,10 @@ export function Barplot({ data, title, subtitle, source }) {
           transform: ready ? "scaleY(1)" : "scaleY(0)",
           transition: `transform 0.6s cubic-bezier(0.4,0,0.2,1) ${i * 0.03}s`,
         }}
-        onMouseEnter={(e) =>
-          setTooltip({ country: d.country, students: d.students, x: e.clientX, y: e.clientY })
-        }
+        onMouseEnter={(e) => {
+          const rect = e.target.getBoundingClientRect();
+          setTooltip({ country: d.country, students: d.students, x: rect.right, y: rect.top + rect.height / 2 });
+        }}
         onMouseLeave={() => setTooltip(null)}
       />
       <text
@@ -125,12 +126,22 @@ export function Barplot({ data, title, subtitle, source }) {
 
   const legend = (
     <g>
+      <text
+        x={legendX + legendBoxWidth / 2}
+        y={legendY - 5}
+        fontSize={11}
+        fontWeight={700}
+        fill="#333"
+        textAnchor="middle"
+      >
+        Region
+      </text>
       <rect
         x={legendX}
         y={legendY}
         width={legendBoxWidth}
         height={legendBoxHeight}
-        fill="rgba(255,255,255,0.9)"
+        fill="#fafaf8"
         stroke="#ccc"
         strokeWidth={1}
         rx={4}
@@ -228,7 +239,7 @@ export function Barplot({ data, title, subtitle, source }) {
       {tooltip && (
         <div
           className="barplot-tooltip"
-          style={{ top: tooltip.y - 50, left: tooltip.x + 12 }}
+          style={{ top: tooltip.y, left: tooltip.x + 8, transform: "translateY(-50%)" }}
         >
           <strong>{flagEmoji[tooltip.country]} {tooltip.country}</strong>
           <br />
