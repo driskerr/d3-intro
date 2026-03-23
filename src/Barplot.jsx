@@ -55,14 +55,18 @@ export function Barplot({ data, title, subtitle, source }) {
     (!selectedBar || selectedBar === country) &&
     (!selectedRegion || countryRegion[country] === selectedRegion);
 
-  const bars = data.map((d, i) => (
+  const bars = data.map((d, i) => {
+    const x = 0;
+    const y = yScale(d.country);
+    const w = xScale(d.students);
+    const h = yScale.bandwidth();
+    const r = Math.min(3, h / 2);
+    const barPath = `M${x},${y} H${x + w - r} A${r},${r} 0 0 1 ${x + w},${y + r} V${y + h - r} A${r},${r} 0 0 1 ${x + w - r},${y + h} H${x} Z`;
+
+    return (
     <g key={d.country}>
-      <rect
-        x={0}
-        y={yScale(d.country)}
-        width={xScale(d.students)}
-        height={yScale.bandwidth()}
-        rx={3}
+      <path
+        d={barPath}
         fill={colorScale(countryRegion[d.country])}
         opacity={isActive(d.country) ? 1 : 0.2}
         stroke={tooltip?.country === d.country ? "black" : "none"}
@@ -96,7 +100,7 @@ export function Barplot({ data, title, subtitle, source }) {
         {d.students}
       </text>
     </g>
-  ));
+  )});
 
   const yLabels = yScale.domain().map((country) => (
     <text
